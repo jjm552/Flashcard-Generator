@@ -1,7 +1,12 @@
-var BasicCard = function(front, back) {
+var BasicCardDeck = [];
+
+var CreateBasicCard = function(front, back) {
     this.cardBasicFront = front;
     this.cardBasicBack = back;
-
 };
 
-module.exports = BasicCard;
+
+
+
+module.exports = CreateBasicCard;
+module.exports = BasicCardDeck;

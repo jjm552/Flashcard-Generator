@@ -1,8 +1,19 @@
 var inquirer = require('inquirer');
-var BasicCard = require("./Basic.js");
-var ClozenCard = require("./Clozen.js");
+var fs = require('fs');
 
-
+// Basic Card deck array and flash-card constructor//
+var basicCardDeck = [];
+var CreateBasicCard = function(front, back) {
+    this.front = front;
+    this.back = back;
+};
+// Clozen deck array and clozen-card constructor//
+var clozenCardDeck = [];
+var CreateClozenCard = function(full, deleted, partial) {
+    this.full = full;
+    this.deleted = deleted;
+    this.partial = partial;
+};
 
 inquirer.prompt([{
     type: "list",
@@ -21,9 +32,15 @@ inquirer.prompt([{
             message: "Please input the answer to the question you just input: ",
             name: "basicFlashBack"
         }, ]).then(function(UserInput) {
-            var flashCard = new BasicCard(UserInput.basicFlashFront, UserInput.basicFlashBack);
-            console.log(flashCard.cardBasicFront);
-            console.log(flashCard.cardBasicBack);
+            var flashCard = new CreateBasicCard(UserInput.basicFlashFront, UserInput.basicFlashBack);
+            basicCardDeck.push(flashCard);
+            console.log(basicCardDeck);
+            var jsonBCDeck = JSON.stringify(basicCardDeck);
+            fs.appendFile("basicCardDeck.txt", jsonBCDeck, function(err) {
+                if (err) {
+                    return console.log("fs error: " + err);
+                }
+            });
         });
     } else if (mainUser.mainUserChoice == "Build a clozen-card") {
         inquirer.prompt([{
@@ -33,10 +50,22 @@ inquirer.prompt([{
         }, {
             type: "input",
             message: "Plese enter the text you would like removed from the above statement i.e ('George Washington'): ",
-            name: "clozenPartialText"
+            name: "clozenDeletedText"
         }, ]).then(function(UserInput) {
-            console.log(UserInput.clozenFullText);
-            console.log(UserInput.clozenPartialText);
+            if (UserInput.clozenFullText.includes(UserInput.clozenDeletedText)) {
+                var clozenPartial = (UserInput.clozenFullText).replace(UserInput.clozenDeletedText, '. . . .');
+                console.log(clozenPartial);
+                var clozenCard = new CreateClozenCard(UserInput.clozenFullText, UserInput.clozenDeletedText, clozenPartial);
+                console.log(clozenCard);
+                var jsonCcDeck = JSON.stringify(clozenCard);
+                fs.appendFile("clozenCardDeck.txt", jsonCcDeck, function(err) {
+                    if (err) {
+                        return console.log(err);
+                    }
+                });
+            } else {
+                console.log(UserInput.clozenDeletedText + "Doesn't appear to be a part of" + UserInput.clozenFullText);
+            }
         });
     } else if (mainUser.mainUserChoice == "Answer a flash-card") {
         console.log("Eventully a Flash-card question will appear here");
